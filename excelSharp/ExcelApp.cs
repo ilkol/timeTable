@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Reflection;
 using Microsoft.Office.Interop.Excel;
 using System.Windows.Forms;
-using static System.Net.Mime.MediaTypeNames;
 
 
 namespace excelSharp
@@ -59,16 +55,6 @@ namespace excelSharp
 
                 List<GroupTimeTable> timeTable = readTimeTable(oSheet, subgroups, paresCount);
 
-                //foreach(List<string> group in timeTable)
-                //{
-                //    string msg = "";
-                //    foreach(string grp in group)
-                //    {
-                //        msg += Environment.NewLine + grp;
-                //    }
-                //    MessageBox.Show(msg);
-                //}
-
 
                 Dictionary<string, Group> groupList = new Dictionary<string, Group>();
                 int i = 0;
@@ -84,67 +70,9 @@ namespace excelSharp
                     }
                     i++;
                 }
-
-                return new TimeTable(groupList, paresCount);
-                //Group test = groupList["ОБ-09.03.01.01-21(34)"];
-
-
-                //int group = 3;
-                //int line = 12;
-                //int day = 0;
-                //int subGroup = subgroups[0];
-                //int dayParesCount = paresCount[day];
-                //List<string>[] timeTable = new List<string>[2] { 
-                //    new List<string>(dayParesCount), 
-                //    new List<string>(dayParesCount) 
-                //};
-                //for(int i = 0; i < dayParesCount; i++)
-                //{
-                //    r = oSheet.Cells[line, group];
-                //    if (r.MergeCells)
-                //    {
-                //        if(r.MergeArea.Rows.Count == 4)
-                //        {
-                //            timeTable[0].Add(r.Value);
-                //            timeTable[1].Add(r.Value);
-                //            line += 4;
-                //        }
-                //        else if (r.MergeArea.Rows.Count == 2)
-                //        {
-                //            timeTable[0].Add(r.Value);
-                //            line += 2;
-                //            r = oSheet.Cells[line, group];
-                //            timeTable[1].Add(r.Value);
-                //            line += 2;
-                //        }
-                //        //timeTable.Add(r.Value);
-                //        //MessageBox.Show("" + r.MergeArea.Rows.Count);
-                //        //Console.WriteLine("Количество столбцов: " + r.MergeArea.Columns.Count);
-                //    }
-
-                //}
-
-                //string msg = "";
-                //foreach (List<string> week in timeTable)
-                //{
-                //    foreach (string s in week)
-                //    {
-                //        msg += s + Environment.NewLine;
-                //    }
-                //    msg += "====" + Environment.NewLine;
-                //}
-                //MessageBox.Show(msg);
-
-                //int shift = 12;
-                //r = oSheet.Cells[shift, 4];
-
-
-                //Console.WriteLine("Ячейка " + r.Address + " имеет " + r.MergeArea.Count.ToString() + " объединённых ячеек" + Environment.NewLine + "Адрес объединённого диапазона: " + r.MergeArea.Address.ToString());
-                //Console.WriteLine("Количество столбцов: " + r.MergeArea.Columns.Count);
-
-                //r = oSheet.get_Range("C28", "D28");
-                //Console.WriteLine(r.Value);
                 oWB.Close();
+                return new TimeTable(groupList, paresCount);
+
             }
             catch(Exception ex) {
                 String errorMessage;
@@ -169,7 +97,6 @@ namespace excelSharp
             {
                 RowsCount += row * 2;
             }
-            //string[,] timeTable = new string[columnCount, RowsCount];
 
             Range r;
 
@@ -194,14 +121,15 @@ namespace excelSharp
                     if(anyWeek)
                     {
                         groupTimtable.Add(r.Value);
-                        row += 4;
-                        j++;
+                        
                     }
                     else
                     {
-                        groupTimtable.Add(r.Value, r.Offset[2, 0].Value);
-                        row += 2;
+                        groupTimtable.Add(r.Value, r.Offset[1, 0].Value);
                     }
+
+                    row += 4;
+                    j++;
                 }
                 timtable.Add(groupTimtable);
                 row = 12;
@@ -239,11 +167,8 @@ namespace excelSharp
             int shift = 3;
             r = sheet.Cells[10, shift];
 
-            //MessageBox.Show(r.Address);
             while (r.Value != null && r.Value != "")
             {
-                //MessageBox.Show(shift + " " + r.MergeArea.Columns.Count.ToString());
-                //MessageBox.Show(r.Value);
                 count = r.MergeArea.Columns.Count;
                 shift += count;
                 subGroupsList.Add(count);
@@ -341,55 +266,6 @@ namespace excelSharp
 
                 addStudentsToTable(students, oSheet);
 
-                
-
-                //range = oSheet.get_Range("С1", "D1");
-
-                //oSheet.Cells[1, 1] = "First Name";
-                //oSheet.Cells[1, 2] = "Last Name";
-                //oSheet.Cells[1, 3] = "Full Name";
-                //oSheet.Cells[1, 4] = "Salary";
-
-                ////Format A1:D1 as bold, vertical alignment = center.
-                //oSheet.get_Range("A1", "D1").Font.Bold = true;
-                //oSheet.get_Range("A1", "D1").VerticalAlignment =
-                //    Excel.XlVAlign.xlVAlignCenter;
-
-                //// Create an array to multiple values at once.
-                //string[,] saNames = new string[5, 2];
-
-                //saNames[0, 0] = "John";
-                //saNames[0, 1] = "Smith";
-                //saNames[1, 0] = "Tom";
-                //saNames[1, 1] = "Brown";
-                //saNames[2, 0] = "Sue";
-                //saNames[2, 1] = "Thomas";
-                //saNames[3, 0] = "Jane";
-                //saNames[3, 1] = "Jones";
-                //saNames[4, 0] = "Adam";
-                //saNames[4, 1] = "Johnson";
-
-                ////Fill A2:B6 with an array of values (First and Last Names).
-                //oSheet.get_Range("A2", "B6").Value2 = saNames;
-
-                ////Fill C2:C6 with a relative formula (=A2 & " " & B2).
-                //oRng = oSheet.get_Range("C2", "C6");
-                //oRng.Formula = "=A2 & \" \" & B2";
-
-                ////Fill D2:D6 with a formula(=RAND()*100000) and apply format.
-                //oRng = oSheet.get_Range("D2", "D6");
-                //oRng.Formula = "=RAND()*100000";
-                //oRng.NumberFormat = "$0.00";
-
-                ////AutoFit columns A:D.
-                //oRng = oSheet.get_Range("A1", "D1");
-                //oRng.EntireColumn.AutoFit();
-
-                ////Manipulate a variable number of columns for Quarterly Sales Data.
-                //DisplayQuarterlySales(oSheet);
-
-                //Make sure Excel is visible and give the user control
-                //of Microsoft Excel's lifetime.
                 oXL.Visible = true;
                 oXL.UserControl = true;
             }

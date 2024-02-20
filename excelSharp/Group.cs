@@ -12,12 +12,18 @@ namespace excelSharp
         private readonly string _name;
         private readonly int subGroups;
         private readonly List<GroupTimeTable> tibetableList = new List<GroupTimeTable>();
+        private readonly List<List<string>> sutdentsList = new List<List<string>>();
         public string Name { get { return _name; } }
 
         public Group(string name, int subgroups)
         {
             this._name = name;
             this.subGroups = subgroups;
+        }
+        public void addStudentList(List<string> list)
+        {
+            sutdentsList.Add(list);
+           
         }
         public void addTimetable(GroupTimeTable tibetable)
         {

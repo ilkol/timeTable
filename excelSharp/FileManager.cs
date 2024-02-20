@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-
 namespace excelSharp
 {
     internal class FileManager
@@ -48,7 +45,7 @@ namespace excelSharp
             writer.Close();
             fileStream.Close();
         }
-        private void checkDir(string filePath)
+        public void checkDir(string filePath)
         {
             string path = filePath.Substring(0, filePath.LastIndexOf(@"\"));
             if (!Directory.Exists(path))
@@ -63,6 +60,49 @@ namespace excelSharp
                 data += student + Environment.NewLine;
             }
             writeToFile(filePath + @".data", data);
+        }
+        public List<string> readDataToListFromFileMbNExist(string filePath)
+        {
+            checkDir(filePath);
+            if (!File.Exists(filePath + ".data"))
+            {
+                File.Create(filePath + ".data");
+            }
+            return readDataToListFromFile(filePath);
+        }
+        public List<string> readDataToListFromFile(string filePath)
+        {
+            string data = "";
+            List<string> studentList = new List<string>();
+            try
+            {
+                data = readFile(filePath + @".data");
+            }
+            catch (Exception ex)
+            {
+                if (ex is FileNotFoundException)
+                {
+                    MessageBox.Show("Файл не был найден");
+                    //File.Create(filePath + @".data");
+                }
+                else
+                {
+                    MessageBox.Show(filePath + ".data" + Environment.NewLine + Environment.NewLine + ex.Message);
+
+                }
+                return studentList;
+            }
+            int pos = data.IndexOf(Environment.NewLine);
+            string student;
+            while (pos != -1)
+            {
+                student = data.Substring(0, pos);
+                if (student.Length > 1)
+                    studentList.Add(student);
+                data = data.Substring(pos + 2);
+                pos = data.IndexOf(Environment.NewLine);
+            }
+            return studentList;
         }
     }
 }

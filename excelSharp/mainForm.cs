@@ -20,7 +20,7 @@ namespace excelSharp
         private ExcelApp app;
         private FileManager fileManager;
 
-        private List<string> groupsList;
+        private Dictionary<string, Group> groupsList = new Dictionary<string, Group>();
         private List<string> curStudentList;
 
         private TimeTable curTimeTable = null;
@@ -31,39 +31,35 @@ namespace excelSharp
             string rootPath = Directory.GetCurrentDirectory();
             fileManager = new FileManager(rootPath);
 
-            if (File.Exists(rootPath + "groups.data"))
+            List<string> groupsNamesList = fileManager.readDataToListFromFileMbNExist(@"студенты\группы");
+            List<string> subGroups = fileManager.readDataToListFromFileMbNExist(@"студенты\подгруппы");
+
+            for (int i = 0; i < groupsNamesList.Count; i++)
             {
-                File.Create(rootPath + "groups.data");
+                try
+                {
+                    groupsList.Add(groupsNamesList[i], new Group(groupsNamesList[i], int.Parse(subGroups[i])));
+
+                }catch (Exception) { }
+
             }
-            groupsList = readDataToListFromFile("groups");
 
-            //groupListBox.Enter += (s, e) => { groupListBox.Parent.Focus(); };
-
-            groupsListBox.Items.AddRange(groupsList.ToArray());
+            groupsListBox.Items.AddRange(groupsNamesList.ToArray());
             if (groupsListBox.Items.Count == 0)
                 hideAllGroupItems();
-                
             else
             {
                 groupsListBox.SelectedIndex = 0;
             }
-            //List<string> students = new List<string>
-            //{
-            //    "test",
-            //    "ad",
-            //    "asd"
-            //};
-
-            //writeStudentListToFile("ОБ-02.03.02", students);
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
 
-            foreach (string group in groupsList)
-            {
-                MessageBox.Show(group + "123");
-            }
+            //foreach (string group in groupsList)
+            //{
+            //    MessageBox.Show(group + "123");
+            //}
             //MessageBox.Show(groupsListBox.SelectedIndex.ToString());
 
             //List<string> students = new List<string>();
@@ -75,8 +71,9 @@ namespace excelSharp
         }
         private void updateGroupListBox()
         {
-            int groupIndex = groupsListBox.SelectedIndex;
-            string groupName = groupsList[groupIndex];
+            string groupIndex = groupsListBox.SelectedText;
+            Group group = groupsList[groupIndex];
+            string groupName = group.Name;
 
             curStudentList = readStudentListFromFile(groupName);
 
@@ -90,48 +87,15 @@ namespace excelSharp
         }
         private void writeStudentListToFile(string groupName, List<string> studentList)
         {
-            fileManager.writeListToFile(@"\students\" + groupName, studentList);
+            fileManager.writeListToFile(@"\студенты\" + groupName, studentList);
 
         }
 
         private List<string> readStudentListFromFile(string groupName)
         {
-            return readDataToListFromFile(@"\students\" + groupName);
+            return fileManager.readDataToListFromFile(@"\студенты\" + groupName);
         }
-        private List<string> readDataToListFromFile(string filePath)
-        {
-            string data = "";
-            List<string> studentList = new List<string>();
-            try
-            {
-                data = fileManager.readFile(filePath + @".data");
-            }
-            catch (Exception ex)
-            {
-                if (ex is FileNotFoundException)
-                {
-                    MessageBox.Show("Файл не был найден");
-                    //File.Create(filePath + @".data");
-                }
-                else
-                {
-                    MessageBox.Show(filePath + ".data" + Environment.NewLine + Environment.NewLine + ex.Message);
-                    
-                }
-                return studentList;
-            }
-            int pos = data.IndexOf(Environment.NewLine);
-            string student;
-            while (pos != -1)
-            {
-                student = data.Substring(0, pos);
-                if (student.Length > 1)
-                    studentList.Add(student);
-                data = data.Substring(pos + 2);
-                pos = data.IndexOf(Environment.NewLine);
-            }
-            return studentList;
-        }
+        
 
         private void groupsListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -163,7 +127,7 @@ namespace excelSharp
 
         private void addGroup(string groupName, List<string> students)
         {
-            if(groupsList.IndexOf(groupName) != -1)
+            if(groupsList[groupName] != null)
             {
                 MessageBox.Show("Группа с названием \""+ groupName + "\" уже найдена" + Environment.NewLine 
                     + "Новая группа не может быть создана!", "Ошибка при добавлении группы", 
@@ -172,23 +136,23 @@ namespace excelSharp
             }
             writeStudentListToFile(groupName, students);
 
-            groupsList.Add(groupName);
-            if(groupsList.Count == 1)
-            {
-                showAllGroupItems();
-            }
-            fileManager.writeListToFile("groups", groupsList);
+            //groupsList.Add(groupName, );
+            //if(groupsList.Count == 1)
+            //{
+            //    showAllGroupItems();
+            //}
+            //fileManager.writeListToFile("groups", groupsList);
 
 
-            groupsListBox.Items.Clear();
-            groupsListBox.Items.AddRange(groupsList.ToArray());
+            //groupsListBox.Items.Clear();
+            //groupsListBox.Items.AddRange(groupsList.ToArray());
 
-            groupsListBox.SelectedIndex = groupsList.IndexOf(groupName);
+            //groupsListBox.SelectedIndex = groupsList.IndexOf(groupName);
         }
         private void removeGroup(string groupName)
         {
-            int index = groupsList.IndexOf(groupName);
-            if (index == -1)
+            Group index = this.groupsList[groupName];
+            if (index == null)
             {
                 MessageBox.Show("Группа с названием \"" + groupName + "\" не найдена" + Environment.NewLine
                     + "Удаление невозможно", "Ошибка при удалении группы",
@@ -196,8 +160,13 @@ namespace excelSharp
                 return;
             }
 
-            groupsList.Remove(groupName);
-            fileManager.writeListToFile("groups", groupsList);
+            this.groupsList.Remove(groupName);
+            List<string> groupsList = new List<string>();
+            foreach(var group in this.groupsList)
+            {
+                groupsList.Add(group.Value.Name);
+            }
+            fileManager.writeListToFile(@"студенты\группы", groupsList);
 
             groupsListBox.Items.Clear();
             groupsListBox.Items.AddRange(groupsList.ToArray());
@@ -225,11 +194,11 @@ namespace excelSharp
 
         private void removeGroupButton_Click(object sender, EventArgs e)
         {
-            string name = groupsList[groupsListBox.SelectedIndex];
-            var resutl = MessageBox.Show("Вы уверены, что хотите удалить группу \""+name+"\"?",
+            Group group = groupsList[groupsListBox.SelectedText];
+            var resutl = MessageBox.Show("Вы уверены, что хотите удалить группу \""+ group.Name + "\"?",
                 "Удаление группы", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if(resutl == DialogResult.Yes)
-                removeGroup(name);
+                removeGroup(group.Name);
         }
 
         private void createTable_Click(object sender, EventArgs e)
@@ -240,32 +209,36 @@ namespace excelSharp
         private void timeTableButton_Click(object sender, EventArgs e)
         {
             curTimeTable = app.readTimeTable(Directory.GetCurrentDirectory() + @"\2_kurs_2_sem.xls");
+            MessageBox.Show("Загрузка расписания окончена успешно");
+
+            GroupTimeTable timeTable;
 
             foreach(var group in curTimeTable.getGroups())
             {
-                fileManager.writeListToFile(@"timtable\" + group.Key, group.Value.getTimetable().Numerator);
+                timeTable = group.Value.getTimetable();
+                fileManager.writeListToFile(@"расписание\числитель\" + group.Key, timeTable.Numerator);
+                fileManager.writeListToFile(@"расписание\знаменатель\" + group.Key, timeTable.Denominator);
             }
 
         }
 
         private void writeTimetableButton_Click(object sender, EventArgs e)
         {
-            //int groupIndex = groupsListBox.SelectedIndex;
-            //string groupName = groupsList[groupIndex];
+            Group group = groupsList[groupsListBox.SelectedText];
 
             //Group group = curTimeTable.getGroup(groupName);
 
-            //string msg = "Раписание:" + Environment.NewLine;
+            string msg = "Раписание:" + Environment.NewLine;
 
-            //for(int i = 0; i < group.SubGroupsCount; i++)
-            //{
-            //    msg += Environment.NewLine + "Группа №" + (i + 1);
-            //    foreach(string pare in group.getTimetable(i))
-            //    {
-            //        msg += Environment.NewLine + pare;
-            //    }
-            //}
-            //timeTableTextBox.Text = msg;
+            for (int i = 0; i < group.SubGroupsCount; i++)
+            {
+                msg += Environment.NewLine + "Группа №" + (i + 1);
+                foreach (string pare in group.getTimetable(i).Numerator)
+                {
+                    msg += Environment.NewLine + pare;
+                }
+            }
+            timeTableTextBox.Text = msg;
         }
     }
 }

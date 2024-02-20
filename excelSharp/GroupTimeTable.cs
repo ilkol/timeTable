@@ -18,6 +18,7 @@ namespace excelSharp
             {
                 this.denominator.Add(numerator);
             }
+            else this.denominator.Add(denominator);
             this.numerator.Add(numerator);
         }
         public List<string> Numerator
@@ -27,6 +28,31 @@ namespace excelSharp
         public List<string> Denominator
         {
             get { return denominator; }
+        }
+
+        public string NumeratorString
+        {
+            get
+            {
+                string value = "";
+                foreach(string s in numerator)
+                {
+                    value += s + Environment.NewLine;
+                }
+                return value;
+            }
+        }
+        public string DenominatorString
+        {
+            get
+            {
+                string value = "";
+                foreach (string s in denominator)
+                {
+                    value += s + Environment.NewLine;
+                }
+                return value;
+            }
         }
     }
 }
