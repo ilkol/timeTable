@@ -53,6 +53,7 @@
     <Compile Include="AddGroup.Designer.cs">
       <DependentUpon>AddGroup.cs</DependentUpon>
     </Compile>
+    <Compile Include="DayTimetable.cs" />
     <Compile Include="ExcelApp.cs" />
     <Compile Include="FileManager.cs" />
     <Compile Include="Group.cs" />

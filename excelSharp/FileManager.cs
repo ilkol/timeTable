@@ -28,7 +28,6 @@ namespace excelSharp
             catch (FileNotFoundException e)
             {
                 throw e;
-                //MessageBox.Show("Файл не найден!");
             }
             return data;
         }
@@ -83,7 +82,6 @@ namespace excelSharp
                 if (ex is FileNotFoundException)
                 {
                     MessageBox.Show("Файл не был найден");
-                    //File.Create(filePath + @".data");
                 }
                 else
                 {
@@ -94,13 +92,18 @@ namespace excelSharp
             }
             int pos = data.IndexOf(Environment.NewLine);
             string student;
+
             while (pos != -1)
             {
                 student = data.Substring(0, pos);
-                if (student.Length > 1)
+                if (student.Length > 0)
                     studentList.Add(student);
                 data = data.Substring(pos + 2);
                 pos = data.IndexOf(Environment.NewLine);
+            }
+            if(data.Length > 0)
+            {
+                studentList.Add(data);
             }
             return studentList;
         }

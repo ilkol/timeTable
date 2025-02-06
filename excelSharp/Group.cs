@@ -10,20 +10,61 @@ namespace excelSharp
     internal class Group
     {
         private readonly string _name;
-        private readonly int subGroups;
-        private readonly List<GroupTimeTable> tibetableList = new List<GroupTimeTable>();
-        private readonly List<List<string>> sutdentsList = new List<List<string>>();
+        private List<GroupTimeTable> tibetableList = new List<GroupTimeTable>();
+        private List<List<string>> studentsList = new List<List<string>>();
         public string Name { get { return _name; } }
 
-        public Group(string name, int subgroups)
+        public Group(string name)
         {
             this._name = name;
-            this.subGroups = subgroups;
         }
         public void addStudentList(List<string> list)
         {
-            sutdentsList.Add(list);
+            studentsList.Add(list);
            
+        }
+        public List<string> StudentList
+        {
+            get
+            {
+                List<string> list = new List<string>();
+                foreach (List<string> studList in studentsList)
+                {
+                    list.AddRange(studList);
+                }
+                return list;
+            }
+
+        }
+        public List<string> StudentListToSave
+        {
+            get
+            {
+                List<string> list = new List<string>();
+                foreach (List<string> studList in studentsList)
+                {
+                    list.AddRange(studList);
+                    list.Add("-");
+                }
+                list.Remove(list[list.Count - 1]);
+
+                return list;
+            }
+
+        }
+
+        public List<List<string>> GroupList
+        {
+            get
+            {
+                
+                return studentsList;
+            }
+
+        }
+        public void setGroupList(List<List<string>> list)
+        {
+            studentsList = list;
         }
         public void addTimetable(GroupTimeTable tibetable)
         {
@@ -40,7 +81,20 @@ namespace excelSharp
         }
         public int SubGroupsCount
         {
-            get { return subGroups; }
+            get { return studentsList.Count; }
+        
+        }
+        public List<GroupTimeTable> TimetableList
+        {
+            set
+            {
+                tibetableList = value;
+
+            }
+            get
+            {
+                return tibetableList;
+            }
         }
     }
 }

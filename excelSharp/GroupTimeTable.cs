@@ -8,36 +8,66 @@ namespace excelSharp
 {
     internal class GroupTimeTable
     {
-        private List<string> numerator = new List<string>();
-        private List<string> denominator = new List<string>();
+        private List<DayTimetable> numerator = new List<DayTimetable>();
+        private List<DayTimetable> denominator = new List<DayTimetable>();
+        private int[] paresCount = new int[6];
         public GroupTimeTable() { }
-
-        public void Add(string numerator, string denominator = null)
+        public int[] PareCount
         {
-            if(denominator == null)
+            set
             {
-                this.denominator.Add(numerator);
+                paresCount = value;
             }
-            else this.denominator.Add(denominator);
-            this.numerator.Add(numerator);
+            get
+            {
+                return paresCount;
+            }
         }
-        public List<string> Numerator
+        public void set(List<string> numerator, List<string> denominator, int[] count)
+        {
+            prepareTimeTable(ref this.denominator, numerator, count);
+            prepareTimeTable(ref this.numerator, numerator, count);
+        }
+        private void prepareTimeTable(ref List<DayTimetable> table, List<string> source, int[] count)
+        {
+            int day = 0;
+            int index = 0;
+            List<string> list = new List<string>();
+            foreach (var pare in source)
+            {
+                if (count[day] >= index)
+                {
+                    table.Add(new DayTimetable(list, count[day]));
+                    index = 0;
+                    day++;
+                    list = new List<string>();
+                }
+                list.Add(pare);
+                index++;
+            }
+        }
+        public List<DayTimetable> Numerator
         {
             get { return numerator; }
         }
-        public List<string> Denominator
+        public List<DayTimetable> Denominator
         {
             get { return denominator; }
         }
-
+        
         public string NumeratorString
         {
             get
             {
                 string value = "";
-                foreach(string s in numerator)
+                
+                foreach(DayTimetable day  in numerator)
                 {
-                    value += s + Environment.NewLine;
+                    foreach(string pare in day.Timetable)
+                    {
+                        value += pare + Environment.NewLine;
+
+                    }
                 }
                 return value;
             }
@@ -47,9 +77,13 @@ namespace excelSharp
             get
             {
                 string value = "";
-                foreach (string s in denominator)
+                foreach (DayTimetable day in denominator)
                 {
-                    value += s + Environment.NewLine;
+                    foreach (string pare in day.Timetable)
+                    {
+                        value += pare + Environment.NewLine;
+
+                    }
                 }
                 return value;
             }

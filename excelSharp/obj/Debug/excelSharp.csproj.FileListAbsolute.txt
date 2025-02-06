@@ -10,3 +10,15 @@ D:\excelSharp\excelSharp\obj\Debug\excelSharp.exe
 D:\excelSharp\excelSharp\obj\Debug\excelSharp.pdb
 D:\excelSharp\excelSharp\obj\Debug\excelSharp.mainForm.resources
 D:\excelSharp\excelSharp\obj\Debug\excelSharp.AddGroup.resources
+D:\timeTable\excelSharp\bin\Debug\excelSharp.exe.config
+D:\timeTable\excelSharp\bin\Debug\excelSharp.exe
+D:\timeTable\excelSharp\bin\Debug\excelSharp.pdb
+D:\timeTable\excelSharp\obj\Debug\excelSharp.csproj.AssemblyReference.cache
+D:\timeTable\excelSharp\obj\Debug\excelSharp.csproj.ResolveComReference.cache
+D:\timeTable\excelSharp\obj\Debug\excelSharp.AddGroup.resources
+D:\timeTable\excelSharp\obj\Debug\excelSharp.mainForm.resources
+D:\timeTable\excelSharp\obj\Debug\excelSharp.Properties.Resources.resources
+D:\timeTable\excelSharp\obj\Debug\excelSharp.csproj.GenerateResource.cache
+D:\timeTable\excelSharp\obj\Debug\excelSharp.csproj.CoreCompileInputs.cache
+D:\timeTable\excelSharp\obj\Debug\excelSharp.exe
+D:\timeTable\excelSharp\obj\Debug\excelSharp.pdb

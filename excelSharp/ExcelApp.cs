@@ -52,8 +52,9 @@ namespace excelSharp
                 paresCount = getParesCount(oSheet);
                 getGroupList(oSheet, ref groups, ref subgroups);
 
-
+                //oXL.Visible = true;
                 List<GroupTimeTable> timeTable = readTimeTable(oSheet, subgroups, paresCount);
+                //oXL.Visible = false;
 
 
                 Dictionary<string, Group> groupList = new Dictionary<string, Group>();
@@ -61,7 +62,7 @@ namespace excelSharp
                 int column = 0;
                 foreach (var groupName in groups)
                 {
-                    Group group = new Group(groupName, subgroups[i]);
+                    Group group = new Group(groupName);
                     groupList.Add(groupName, group);
                     for(int j = 0; j < subgroups[i]; j++)
                     {
@@ -70,7 +71,7 @@ namespace excelSharp
                     }
                     i++;
                 }
-                oWB.Close();
+                oWB.Close(0);
                 return new TimeTable(groupList, paresCount);
 
             }
@@ -104,33 +105,41 @@ namespace excelSharp
             GroupTimeTable groupTimtable;
 
             bool anyWeek;
+            int day = 0;
+            List<string> numerator, denominator;
 
             for (int i = 0, column = 3, row = 12; i < columnCount; i++, column++)
             {
                 groupTimtable = new GroupTimeTable();
+                numerator = new List<string>();
+                denominator = new List<string>();
                 for (int j = 0; j < RowsCount; j++)
                 {
                     r = sheet.Cells[row, column];
                     anyWeek = r.MergeArea.Rows.Count > 2;
                     if (r.MergeArea.Columns.Count > 1)
                     {
+
                         normolizeTable(sheet, r, columnCount, column, row, anyWeek);
                         r = sheet.Cells[row, column];
                     }
             
                     if(anyWeek)
                     {
-                        groupTimtable.Add(r.Value);
-                        
+                        numerator.Add(r.Value);
+                        denominator.Add(r.Value);
                     }
                     else
                     {
-                        groupTimtable.Add(r.Value, r.Offset[1, 0].Value);
+                        numerator.Add(r.Value);
+                        denominator.Add(r.Offset[1, 0].Value);
                     }
 
                     row += 4;
                     j++;
                 }
+                groupTimtable.set(numerator, denominator, paresCount);
+                day++;
                 timtable.Add(groupTimtable);
                 row = 12;
             }
@@ -238,7 +247,7 @@ namespace excelSharp
             }
             return list;
         }
-        public void createTable(List<string> students)
+        public void createTable(Group group)
         {
             if(oXL == null)
             {
@@ -246,15 +255,17 @@ namespace excelSharp
             }
 
             Excel._Worksheet oSheet;
-            Excel.Range oRng;
+
+            List<string> studList = group.StudentList;
+            
 
             try
             {
-                if (oWB != null)
-                {
-                    oWB.Close(0);
+                //if (oWB != null)
+                //{
+                //    oWB.Close(0);
 
-                }
+                //}
                 oXL.Visible = true;
 
 
@@ -262,9 +273,14 @@ namespace excelSharp
                 oWB = (Excel._Workbook)(oXL.Workbooks.Add(Missing.Value));
                 oSheet = (Excel._Worksheet)oWB.ActiveSheet;
 
-                createTemplateTable(students.Count, oSheet);
+                createTemplateTable(studList.Count, oSheet);
 
-                addStudentsToTable(students, oSheet);
+                addStudentsToTable(studList, oSheet);
+
+                addSubGroupLinse(oSheet, group.GroupList);
+
+                addTimeTableToTable(oSheet, group.TimetableList);
+
 
                 oXL.Visible = true;
                 oXL.UserControl = true;
@@ -279,6 +295,85 @@ namespace excelSharp
 
                 MessageBox.Show(errorMessage, "Error");
             }
+        }
+        private void addTimeTableToTable(_Worksheet oSheet, List<GroupTimeTable> timeTable)
+        {
+            try
+            {
+                List<List<string>> groupsTimeTable = new List<List<string>>();
+
+
+                int index;
+                string tmp;
+
+                List<string> StringTimeTable = new List<string>();
+
+
+
+                foreach (GroupTimeTable groupTimeTable in timeTable)
+                {
+                    List<DayTimetable> WeekTimeTable = groupTimeTable.Numerator;
+                    foreach(DayTimetable dayTimetable in WeekTimeTable)
+                    {
+                        StringTimeTable.AddRange(dayTimetable.Timetable);
+                        for(int i = 0; i < 6 - dayTimetable.paresCount; i++)
+                        {
+                            StringTimeTable.Add("");
+                        }
+                    }
+
+
+                }
+                    //    if (weekTimeTable == null)
+                    //    {
+                    //        List<DayTimetable> dayTimetable = groupTimeTable.Numerator;
+                    //        weekTimeTable = new List<string>();
+                    //    }
+                    //    else
+                    //    {
+                    //        index = 0;
+                    //        foreach (string leson in groupTimeTable.Numerator.Timetable)
+                    //        {
+                    //            tmp = weekTimeTable[index];
+                    //            if(leson != tmp)
+                    //            {
+                    //                weekTimeTable[index] = tmp + "/" + leson;
+                    //            }
+                    //            index++;
+                    //        }
+                    //    }
+
+                //}
+
+                Range range = oSheet.get_Range("C3", "AL4");
+
+                //for (int i = 0; i < 6; i++)
+                //{
+                int pare = 0;
+                index = 0;
+                foreach (Range item in range.Columns)
+                {
+
+                    oSheet.get_Range(item.Address).Value = StringTimeTable[index];
+                        
+                    index++;
+                }
+                //}
+            }
+            catch(Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
+        }
+        private void addSubGroupLinse(_Worksheet oSheet, List<List<string>> groupList)
+        {
+            int start = 5;
+            foreach (var student in groupList)
+            {
+                start += student.Count;
+                oSheet.get_Range("A" + start, "AN" + start).Borders[XlBordersIndex.xlEdgeBottom].Weight = XlBorderWeight.xlThick;
+            }
+        
         }
         private void addStudentsToTable(List<string> students, _Worksheet oSheet)
         {
@@ -317,7 +412,7 @@ namespace excelSharp
             range.WrapText = true;
             range.Font.Size = 8;
 
-            int lastCell = studCount + 5 + 2;
+            int lastCell = studCount + 5 + 1;
 
             range = oSheet.get_Range("4:4");
             range.EntireRow.RowHeight = 22.5;
@@ -426,7 +521,7 @@ namespace excelSharp
                 oSheet.Cells[5 + i, 1].value = i;
             }
 
-            oSheet.get_Range("A" + lastCell, "AN" + lastCell).Borders[XlBordersIndex.xlEdgeTop].Weight = XlBorderWeight.xlThick;
+            //oSheet.get_Range("A" + lastCell, "AN" + lastCell).Borders[XlBordersIndex.xlEdgeTop].Weight = XlBorderWeight.xlThick;
         }
 
         private void createLabel(_Worksheet sheet, string text, float x, float y)
